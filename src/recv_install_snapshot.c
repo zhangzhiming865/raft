@@ -46,7 +46,7 @@ int recvInstallSnapshot(struct raft *r,
     }
 
     if (match < 0) {
-        tracef("local term is higher -> reject ");
+        tracef("local term is higher -> reject, args term %d current term %d ", args->term, r->current_term);
         goto reply;
     }
 
