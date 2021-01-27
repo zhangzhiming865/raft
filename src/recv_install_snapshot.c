@@ -34,11 +34,14 @@ int recvInstallSnapshot(struct raft *r,
 
     assert(address != NULL);
 
+    tracef("start recvInstallSnapshot");
+
     result->rejected = args->last_index;
     result->last_log_index = logLastIndex(&r->log);
 
     rv = recvEnsureMatchingTerms(r, args->term, &match);
     if (rv != 0) {
+        tracef("recvInstallSnapshot recvEnsureMatchingTerms rv %d", rv);
         return rv;
     }
 
@@ -58,16 +61,19 @@ int recvInstallSnapshot(struct raft *r,
 
     rv = recvUpdateLeader(r, id, address);
     if (rv != 0) {
+        tracef("recvInstallSnapshot recvUpdateLeader, rv %d", rv);
         return rv;
     }
     r->election_timer_start = r->io->time(r->io);
 
     rv = replicationInstallSnapshot(r, args, &result->rejected, &async);
     if (rv != 0) {
+        tracef("recvInstallSnapshot replicationInstallSnapshot, rv %d", rv);
         return rv;
     }
 
     if (async) {
+        tracef("recvInstallSnapshot async");
         return 0;
     }
 
@@ -76,6 +82,7 @@ int recvInstallSnapshot(struct raft *r,
         result->last_log_index = args->last_index;
     }
 
+    tracef("recvInstallSnapshot, start reply");
 reply:
     result->term = r->current_term;
 
@@ -99,6 +106,7 @@ reply:
         return rv;
     }
 
+    tracef("end recvInstallSnapshot");
     return 0;
 }
 

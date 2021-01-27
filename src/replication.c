@@ -828,7 +828,7 @@ static void appendFollowerCb(struct raft_io_append *req, int status)
     size_t j;
     int rv;
 
-    tracef("I/O completed on follower: status %d", status);
+    tracef("I/O completed on follower: status %d, entry-point %p", status, args->entries);
 
     assert(args->entries != NULL);
     assert(args->n_entries > 0);
@@ -1128,6 +1128,7 @@ int replicationAppend(struct raft *r,
         goto err_after_acquire_entries;
     }
 
+    tracef("free entry-point %p", args->entries);
     raft_free(args->entries);
 
     return 0;
